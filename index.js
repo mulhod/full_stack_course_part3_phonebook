@@ -46,21 +46,56 @@ app.delete('/api/persons/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-app.post('/api/persons', (request, response) => {
+app.put('/api/persons/:id', (request, response, next) => {
+  const body = request.body
+
+  const person = {
+    name: body.name,
+    number: body.number,
+  }
+
+  Entry.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then(updatedPerson => {
+      response.json(updatedPerson)
+    })
+    .catch(error => next(error))
+})
+
+app.post('/api/persons', (request, response, error) => {
   const body = request.body
 
   if (body.name === undefined || body.number === undefined) {
     return response.status(400).json({ error: 'name or number missing' })
   }
 
-  const entry = new Entry({
-    name: body.name,
-    number: body.number
+  var foundPerson = null
+  Entry.find({"name": body.name}).then(person => {
+    if (person) {
+      foundPerson = person
+    }
   })
+  if (foundPerson) {
+    const updatedPerson = {
+      name: body.name,
+      number: body.number
+    }
+    Entry.findByIdAndUpdate(foundPerson.id,
+                            updatedPerson,
+                            { new: true })
+    .then(person => {
+      response.json(person)
+    })
+    .catch(error => next(error))
+  } else {
+    const entry = new Entry({
+      name: body.name,
+      number: body.number
+    })
 
-  entry.save().then(savedEntry => {
-    response.json(savedEntry)
-  })
+    entry.save().then(savedEntry => {
+      response.json(savedEntry)
+    })
+  }
 })
 
 const errorHandler = (error, request, response, next) => {
