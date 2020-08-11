@@ -18,9 +18,14 @@ mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
 
 const entrySchema = new mongoose.Schema({
   name: {type: String,
+         minlength: 3,
          required: true,
          unique: true},
   number: {type: String,
+           validate: {
+             validator: number => /\d{8}/.test(number),
+             message: props => `${props.value} is not a valid phone number!`
+           },
            required: true}
 })
 
