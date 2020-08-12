@@ -2,9 +2,9 @@ const express = require('express')
 require('dotenv').config()
 const morgan = require('morgan')
 const Entry = require('./models/entry')
-const cors = require('cors');
+const cors = require('cors')
 
-morgan.token('data', function (req, res) { return JSON.stringify(req.body) })
+morgan.token('data', function (req, res) { return JSON.stringify(req.body) })  // eslint-disable-line no-unused-vars
 
 const app = express()
 
@@ -14,15 +14,15 @@ app.use(cors())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :data'))
 
 app.get('/', (req, res) => {
-    res.send('<h1>Hello World!</h1>')
+  res.send('<h1>Hello World!</h1>')
 })
 
 app.get('/info', (req, res) => {
-    Entry.find({}).then(entries => {
-      res.send(`<div>Phonebook has info for ${entries.length} people</div><br/><div>${Date()}</div>`)
-    })
+  Entry.find({}).then(entries => {
+    res.send(`<div>Phonebook has info for ${entries.length} people</div><br/><div>${Date()}</div>`)
+  })
 })
-  
+
 app.get('/api/persons', (request, response) => {
   Entry.find({}).then(entries => {
     response.json(entries)
@@ -30,19 +30,20 @@ app.get('/api/persons', (request, response) => {
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
-  Entry.findById(request.params.id).then(person => {
-    if (person) {
-      response.json(person)
-    } else {
-      response.status(404).end()
-    }
-  })
-  .catch(error => next(error))
+  Entry
+    .findById(request.params.id).then(person => {
+      if (person) {
+        response.json(person)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
   Entry.findByIdAndRemove(request.params.id)
-    .then(result => {
+    .then(result => {  // eslint-disable-line no-unused-vars
       response.status(204).end()
     })
     .catch(error => next(error))
@@ -71,7 +72,7 @@ app.post('/api/persons', (request, response, next) => {
   }
 
   var foundPerson = null
-  Entry.find({"name": body.name}).then(person => {
+  Entry.find({ 'name': body.name }).then(person => {
     if (person) {
       foundPerson = person
     }
@@ -82,10 +83,10 @@ app.post('/api/persons', (request, response, next) => {
       number: body.number
     }
     Entry.findByIdAndUpdate(foundPerson.id, updatedPerson, { new: true })
-    .then(person => {
-      response.json(person)
-    })
-    .catch(error => next(error))
+      .then(person => {
+        response.json(person)
+      })
+      .catch(error => next(error))
   } else {
     const entry = new Entry({
       name: body.name,
@@ -93,11 +94,11 @@ app.post('/api/persons', (request, response, next) => {
     })
 
     entry.save()
-    .then(savedEntry => savedEntry.toJSON())
-    .then(savedAndFormattedEntry => {
-      response.json(savedAndFormattedEntry)
-    })
-    .catch(error => next(error))
+      .then(savedEntry => savedEntry.toJSON())
+      .then(savedAndFormattedEntry => {
+        response.json(savedAndFormattedEntry)
+      })
+      .catch(error => next(error))
   }
 })
 
@@ -117,5 +118,5 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
+  console.log(`Server running on port ${PORT}`)
 })
